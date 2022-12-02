@@ -7,5 +7,6 @@ export interface CellInterface {
   isStartPoint: boolean;
   isEndPoint: boolean;
   distanceFromStart: number;
-  previousNode: CellInterface | null;
+  previousCell: CellInterface | null;
+  timeStamp?: number;
 }

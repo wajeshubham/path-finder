@@ -9,7 +9,7 @@ let singleCell: CellInterface = {
   isStartPoint: false,
   isEndPoint: false,
   distanceFromStart: Infinity,
-  previousNode: null,
+  previousCell: null,
 };
 
 export const getCellObjects = (): CellInterface[][] => {
@@ -29,7 +29,7 @@ export const getCellObjects = (): CellInterface[][] => {
 
 export const getCells = (grid: CellInterface[][]) => {
   let cellsArray: CellInterface[] = [];
-  grid.forEach((row) => {
+  [...grid].forEach((row) => {
     row.forEach((cell) => {
       cellsArray.push(cell);
     });

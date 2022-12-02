@@ -9,16 +9,19 @@ const Cell: React.FC<CellInterface & HTMLAttributes<HTMLDivElement>> = ({
   col,
   isVisited,
   row,
-  previousNode,
+  previousCell,
   distanceFromStart,
+  timeStamp,
   ...props
 }) => {
   return (
     <div
       {...props}
-      className={`w-6 h-6 inline-block aspect-square border-[0.1px] border-emerald-500 ${
-        isStartPoint ? "bg-red-500" : ""
-      } ${isEndPoint ? "bg-green-500" : ""} ${isWall ? "bg-gray-900" : ""}`}
+      className={`w-6 h-6 inline-block aspect-square border-[0.1px] border-gray-300 ${
+        isStartPoint ? "!bg-red-500" : ""
+      } ${isEndPoint ? "!bg-green-500" : ""} ${
+        isWall ? "bg-gray-900 wall-animate" : ""
+      }`}
     ></div>
   );
 };
