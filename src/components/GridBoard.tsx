@@ -11,7 +11,65 @@ const GridBoard = () => {
   const [foundPath, setFoundPath] = useState(false);
   const gridBoardCells = useRef(getCellObjects());
   const [cellsScanned, setCellsScanned] = useState(0);
+  const [cellsTraveled, setCellsTraveled] = useState(0);
   const [renderFlag, setRenderFlag] = useState(false);
+
+  const generateVerticalMaze = () => {
+    for (let colIndex = 0; colIndex < 50; colIndex++) {
+      for (let rowIndex = 0; rowIndex < 30; rowIndex++) {
+        setRenderFlag(!renderFlag);
+        let element = gridBoardCells.current[rowIndex][colIndex];
+        if (element.isStartPoint || element.isEndPoint) continue;
+        element.isWall =
+          colIndex === 0 ||
+          colIndex === 49 ||
+          rowIndex === 0 ||
+          rowIndex === 29 ||
+          (rowIndex <= 10 && colIndex % 5 === 0) ||
+          (rowIndex > 12 &&
+            rowIndex <= 15 &&
+            colIndex % 3 === 1 &&
+            colIndex !== 1) ||
+          (rowIndex >= 18 && colIndex % 5 === 0);
+      }
+    }
+  };
+
+  const generateHorizontalMaze = () => {
+    for (let colIndex = 0; colIndex < 50; colIndex++) {
+      for (let rowIndex = 0; rowIndex < 30; rowIndex++) {
+        setRenderFlag(!renderFlag);
+        let element = gridBoardCells.current[rowIndex][colIndex];
+        if (element.isStartPoint || element.isEndPoint) continue;
+        element.isWall =
+          rowIndex === 0 ||
+          rowIndex === 29 ||
+          colIndex === 0 ||
+          colIndex === 49 ||
+          (colIndex <= 18 && rowIndex % 5 === 0) ||
+          (colIndex > 20 && colIndex <= 28 && rowIndex % 5 === 0) ||
+          (colIndex >= 31 && rowIndex % 5 === 0) ||
+          (rowIndex > 0 &&
+            rowIndex <= 2 &&
+            colIndex % 3 === 1 &&
+            colIndex !== 1) ||
+          (rowIndex > 26 && colIndex % 3 === 1 && colIndex !== 1);
+      }
+    }
+  };
+
+  const generateRandomMaze = () => {
+    for (let colIndex = 0; colIndex < 50; colIndex++) {
+      for (let rowIndex = 0; rowIndex < 30; rowIndex++) {
+        setRenderFlag(!renderFlag);
+        let element = gridBoardCells.current[rowIndex][colIndex];
+        if (element.isStartPoint || element.isEndPoint) continue;
+        element.isWall =
+          colIndex % Math.ceil(Math.random() * 2) === 1 ||
+          rowIndex % Math.ceil(Math.random() * 2) === 1;
+      }
+    }
+  };
 
   const animateDijkstra = (visitedCells: CellInterface[]) => {
     for (let i = 0; i < visitedCells.length; i++) {
@@ -22,7 +80,7 @@ const GridBoard = () => {
         if (i >= visitedCells.length - 1) {
           setFoundPath(true);
         }
-      }, 2 * i);
+      }, 10 * i);
     }
   };
 
@@ -30,8 +88,9 @@ const GridBoard = () => {
     for (let i = 0; i < shortestPath.length; i++) {
       setTimeout(() => {
         const cell = shortestPath[i];
+        setCellsTraveled(i + 1);
         let item = document.getElementById(`cell-${cell.row}-${cell.col}`);
-        item!.className += " !bg-blue-500";
+        item!.className += " !bg-red-600";
       }, 25 * i);
     }
   };
@@ -60,10 +119,21 @@ const GridBoard = () => {
 
   return (
     <>
-      <button onClick={visualizeDijkstra}>Visualize</button>
-      <button>Pause</button>
-      <p>Total cells scanned: {cellsScanned}</p>
-
+      <div className="flex gap-6">
+        <button onClick={visualizeDijkstra}>Visualize dijkstra</button>
+        <br />
+        <button onClick={generateVerticalMaze}>Generate vertical maze</button>
+        <br />
+        <button onClick={generateHorizontalMaze}>
+          Generate horizontal maze
+        </button>
+        <br />
+        <button onClick={generateRandomMaze}>Generate random maze</button>
+        <br />
+        <button>Pause</button>
+        <p>Total cells scanned: {cellsScanned}</p>
+        <p>Cells traveled: {cellsTraveled}</p>
+      </div>
       <div className="grid grid-cols-gridmap justify-center items-center">
         {gridBoardCells.current.map((row, rowIndex) => {
           return (
@@ -95,6 +165,7 @@ const GridBoard = () => {
                     onClick={() => {
                       let clickedCell =
                         gridBoardCells.current[rowIndex][colIndex];
+                      if (clickedCell.isWall) return;
                       if (cell.cellNumber === startPoint?.cellNumber) {
                         setStartPoint(null);
                         clickedCell.isStartPoint = false;

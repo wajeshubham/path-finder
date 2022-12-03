@@ -17,7 +17,7 @@ const Cell: React.FC<CellInterface & HTMLAttributes<HTMLDivElement>> = ({
   return (
     <div
       {...props}
-      className={`w-6 h-6 inline-block aspect-square border-[0.1px] border-gray-300 ${
+      className={`w-6 h-6 inline-block aspect-square border-[0.1px] border-amber-300 ${
         isStartPoint ? "!bg-red-500" : ""
       } ${isEndPoint ? "!bg-green-500" : ""} ${
         isWall ? "bg-gray-900 wall-animate" : ""

@@ -1,7 +1,11 @@
 import GridBoard from "./components/GridBoard";
 
 const App = () => {
-  return <GridBoard />;
+  return (
+    <>
+      <GridBoard />
+    </>
+  );
 };
 
 export default App;
