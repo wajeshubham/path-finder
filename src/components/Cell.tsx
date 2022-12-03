@@ -11,7 +11,6 @@ const Cell: React.FC<CellInterface & HTMLAttributes<HTMLDivElement>> = ({
   row,
   previousCell,
   distanceFromStart,
-  timeStamp,
   ...props
 }) => {
   return (

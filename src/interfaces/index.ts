@@ -8,5 +8,4 @@ export interface CellInterface {
   isEndPoint: boolean;
   distanceFromStart: number;
   previousCell: CellInterface | null;
-  timeStamp?: number;
 }

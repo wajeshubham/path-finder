@@ -36,3 +36,14 @@ export const getCells = (grid: CellInterface[][]) => {
   });
   return cellsArray;
 };
+
+export function getShortestPathCells(endCell: CellInterface) {
+  const pathCells = [];
+  let currentCell: CellInterface | null = endCell;
+  while (currentCell) {
+    pathCells.push(currentCell);
+    currentCell = currentCell.previousCell;
+  }
+
+  return pathCells;
+}

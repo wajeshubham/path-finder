@@ -46,14 +46,3 @@ export const dijkstra = (
     traverseFurtherInGrid(currentCell, grid);
   }
 };
-
-export function getShortestPathCells(endCell: CellInterface) {
-  const pathCells = [];
-  let currentCell: CellInterface | null = endCell;
-  while (currentCell) {
-    pathCells.push(currentCell);
-    currentCell = currentCell.previousCell;
-  }
-
-  return pathCells;
-}

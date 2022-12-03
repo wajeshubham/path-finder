@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { CellInterface } from "../interfaces";
-import { getCellObjects } from "../utils/helpers";
+import { getCellObjects, getShortestPathCells } from "../utils/helpers";
 import Cell from "./Cell";
-import { dijkstra, getShortestPathCells } from "../app/dijkstra";
+import { dijkstra } from "../app/dijkstra";
 
 const GridBoard = () => {
   const [startPoint, setStartPoint] = useState<CellInterface | null>(null);
@@ -165,7 +165,10 @@ const GridBoard = () => {
                     onClick={() => {
                       let clickedCell =
                         gridBoardCells.current[rowIndex][colIndex];
-                      if (clickedCell.isWall) return;
+                      if (clickedCell.isWall) {
+                        clickedCell.isWall = false;
+                        return;
+                      }
                       if (cell.cellNumber === startPoint?.cellNumber) {
                         setStartPoint(null);
                         clickedCell.isStartPoint = false;
@@ -178,7 +181,10 @@ const GridBoard = () => {
                         return;
                       }
 
-                      if (startPoint && endPoint) return;
+                      if (startPoint && endPoint) {
+                        clickedCell.isWall = true;
+                        return;
+                      }
                       if (!startPoint) {
                         setStartPoint({
                           ...clickedCell,
