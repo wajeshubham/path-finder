@@ -1,93 +1,97 @@
 import React, { useEffect, useRef, useState } from "react";
-import { CellInterface } from "../interfaces";
-import { getCellObjects, getShortestPathCells } from "../utils/helpers";
+import { CellInterface, SearchingAlgoEnum } from "../interfaces";
+import { getCellObjects, getPath } from "../utils/helpers";
 import Cell from "./Cell";
-import { dijkstra } from "../app/dijkstra";
+import { dijkstra } from "../app/algorithms/dijkstra";
+import { BFS } from "../app/algorithms/BFS";
+import { DFS } from "../app/algorithms/DFS";
+import { generateRandomMaze } from "../app/maze/randomMaze";
 
 const GridBoard = () => {
+  const gridBoardCells = useRef(getCellObjects());
+
   const [startPoint, setStartPoint] = useState<CellInterface | null>(null);
   const [endPoint, setEndPoint] = useState<CellInterface | null>(null);
-  const [isMouseDown, setIsMouseDown] = useState(false);
-  const [foundPath, setFoundPath] = useState(false);
-  const gridBoardCells = useRef(getCellObjects());
+  const [foundPath, setFoundPath] = useState<CellInterface[] | null>(null);
+
   const [cellsScanned, setCellsScanned] = useState(0);
   const [cellsTraveled, setCellsTraveled] = useState(0);
+
+  const [isMouseDown, setIsMouseDown] = useState(false);
   const [renderFlag, setRenderFlag] = useState(false);
 
-  const generateVerticalMaze = () => {
-    for (let colIndex = 0; colIndex < 50; colIndex++) {
-      for (let rowIndex = 0; rowIndex < 30; rowIndex++) {
-        setRenderFlag(!renderFlag);
-        let element = gridBoardCells.current[rowIndex][colIndex];
-        if (element.isStartPoint || element.isEndPoint) continue;
-        element.isWall =
-          colIndex === 0 ||
-          colIndex === 49 ||
-          rowIndex === 0 ||
-          rowIndex === 29 ||
-          (rowIndex <= 10 && colIndex % 5 === 0) ||
-          (rowIndex > 12 &&
-            rowIndex <= 15 &&
-            colIndex % 3 === 1 &&
-            colIndex !== 1) ||
-          (rowIndex >= 18 && colIndex % 5 === 0);
-      }
+  const onMouseEnter = (rowIndex: number, colIndex: number) => {
+    setRenderFlag(!renderFlag);
+    let element = gridBoardCells.current[rowIndex];
+    if (!isMouseDown) return;
+    if (element[colIndex].isStartPoint || element[colIndex].isEndPoint) return;
+
+    element[colIndex].isWall = !element[colIndex].isWall;
+  };
+
+  const onCellClick = (
+    cell: CellInterface,
+    rowIndex: number,
+    colIndex: number
+  ) => {
+    let clickedCell = gridBoardCells.current[rowIndex][colIndex];
+    if (clickedCell.isWall) {
+      clickedCell.isWall = false;
+      return;
+    }
+    if (cell.cellNumber === startPoint?.cellNumber) {
+      setStartPoint(null);
+      clickedCell.isStartPoint = false;
+      clickedCell.distanceFromStart = Infinity;
+      return;
+    }
+    if (cell.cellNumber === endPoint?.cellNumber) {
+      setEndPoint(null);
+      clickedCell.isEndPoint = false;
+      return;
+    }
+
+    if (startPoint && endPoint) {
+      clickedCell.isWall = true;
+      return;
+    }
+    if (!startPoint) {
+      setStartPoint({
+        ...clickedCell,
+        isStartPoint: true,
+        distanceFromStart: 0,
+      });
+      clickedCell.isStartPoint = true;
+      clickedCell.distanceFromStart = 0;
+    } else if (startPoint) {
+      setEndPoint({
+        ...clickedCell,
+        isEndPoint: true,
+      });
+      clickedCell.isEndPoint = true;
     }
   };
 
-  const generateHorizontalMaze = () => {
-    for (let colIndex = 0; colIndex < 50; colIndex++) {
-      for (let rowIndex = 0; rowIndex < 30; rowIndex++) {
-        setRenderFlag(!renderFlag);
-        let element = gridBoardCells.current[rowIndex][colIndex];
-        if (element.isStartPoint || element.isEndPoint) continue;
-        element.isWall =
-          rowIndex === 0 ||
-          rowIndex === 29 ||
-          colIndex === 0 ||
-          colIndex === 49 ||
-          (colIndex <= 18 && rowIndex % 5 === 0) ||
-          (colIndex > 20 && colIndex <= 28 && rowIndex % 5 === 0) ||
-          (colIndex >= 31 && rowIndex % 5 === 0) ||
-          (rowIndex > 0 &&
-            rowIndex <= 2 &&
-            colIndex % 3 === 1 &&
-            colIndex !== 1) ||
-          (rowIndex > 26 && colIndex % 3 === 1 && colIndex !== 1);
-      }
-    }
-  };
-
-  const generateRandomMaze = () => {
-    for (let colIndex = 0; colIndex < 50; colIndex++) {
-      for (let rowIndex = 0; rowIndex < 30; rowIndex++) {
-        setRenderFlag(!renderFlag);
-        let element = gridBoardCells.current[rowIndex][colIndex];
-        if (element.isStartPoint || element.isEndPoint) continue;
-        element.isWall =
-          colIndex % Math.ceil(Math.random() * 2) === 1 ||
-          rowIndex % Math.ceil(Math.random() * 2) === 1;
-      }
-    }
-  };
-
-  const animateDijkstra = (visitedCells: CellInterface[]) => {
+  const animateAlgo = (
+    visitedCells: CellInterface[],
+    path: CellInterface[]
+  ) => {
     for (let i = 0; i < visitedCells.length; i++) {
       setTimeout(() => {
         const cell = visitedCells[i];
         let item = document.getElementById(`cell-${cell.row}-${cell.col}`);
         item!.className += " cell-visited";
-        if (i >= visitedCells.length - 1) {
-          setFoundPath(true);
+        if (cell.isTarget) {
+          setFoundPath(path);
         }
       }, 10 * i);
     }
   };
 
-  const animatePath = (shortestPath: CellInterface[]) => {
-    for (let i = 0; i < shortestPath.length; i++) {
+  const animatePath = (path: CellInterface[]) => {
+    for (let i = 0; i < path.length; i++) {
       setTimeout(() => {
-        const cell = shortestPath[i];
+        const cell = path[i];
         setCellsTraveled(i + 1);
         let item = document.getElementById(`cell-${cell.row}-${cell.col}`);
         item!.className += " !bg-red-600";
@@ -95,40 +99,58 @@ const GridBoard = () => {
     }
   };
 
-  const visualizeDijkstra = () => {
+  const visualizeAlgo = (type: SearchingAlgoEnum) => {
     if (!startPoint || !endPoint) return;
     let grid = gridBoardCells.current;
-    let visitedCells =
-      dijkstra(
-        grid,
-        grid[startPoint.row][startPoint.col],
-        grid[endPoint.row][endPoint.col]
-      ) || [];
+    let start = grid[startPoint.row][startPoint.col];
+    let end = grid[endPoint.row][endPoint.col];
+    let visitedCells: CellInterface[] = [];
+    switch (type) {
+      case SearchingAlgoEnum.DIJKSTRA:
+        visitedCells = dijkstra(grid, start, end) || [];
+        break;
+      case SearchingAlgoEnum.DFS:
+        visitedCells = DFS(grid, start, end) || [];
+        break;
+      case SearchingAlgoEnum.BFS:
+        visitedCells = BFS(grid, start, end) || [];
+        break;
+    }
+    const path = getPath(grid, start, end);
     setCellsScanned(visitedCells.length);
-    animateDijkstra(visitedCells);
+    animateAlgo(visitedCells, path);
   };
 
   useEffect(() => {
     if (foundPath && startPoint && endPoint) {
-      let grid = gridBoardCells.current;
-      let shortestPath =
-        getShortestPathCells(grid[endPoint.row][endPoint.col]) || [];
-      animatePath(shortestPath);
+      animatePath(foundPath);
     }
   }, [foundPath]);
 
   return (
     <>
       <div className="flex gap-6">
-        <button onClick={visualizeDijkstra}>Visualize dijkstra</button>
-        <br />
-        <button onClick={generateVerticalMaze}>Generate vertical maze</button>
-        <br />
-        <button onClick={generateHorizontalMaze}>
-          Generate horizontal maze
+        <button onClick={() => visualizeAlgo(SearchingAlgoEnum.DIJKSTRA)}>
+          Visualize dijkstra
         </button>
         <br />
-        <button onClick={generateRandomMaze}>Generate random maze</button>
+        <button onClick={() => visualizeAlgo(SearchingAlgoEnum.BFS)}>
+          Visualize BFS
+        </button>
+        <br />
+        <button onClick={() => visualizeAlgo(SearchingAlgoEnum.DFS)}>
+          Visualize DFS
+        </button>
+        <br />
+
+        <button
+          onClick={() => {
+            generateRandomMaze(gridBoardCells.current);
+            setRenderFlag(!renderFlag);
+          }}
+        >
+          Generate random maze
+        </button>
         <br />
         <button>Pause</button>
         <p>Total cells scanned: {cellsScanned}</p>
@@ -143,64 +165,19 @@ const GridBoard = () => {
                   <Cell
                     key={colIndex}
                     id={`cell-${cell.row}-${cell.col}`}
-                    {...cell}
                     onMouseDown={() => {
                       setIsMouseDown(true);
                     }}
                     onMouseEnter={() => {
-                      setRenderFlag(!renderFlag);
-                      let element = gridBoardCells.current[rowIndex];
-                      if (!isMouseDown) return;
-                      if (
-                        element[colIndex].isStartPoint ||
-                        element[colIndex].isEndPoint
-                      )
-                        return;
-
-                      element[colIndex].isWall = !element[colIndex].isWall;
+                      onMouseEnter(rowIndex, colIndex);
                     }}
                     onMouseUp={() => {
                       setIsMouseDown(false);
                     }}
                     onClick={() => {
-                      let clickedCell =
-                        gridBoardCells.current[rowIndex][colIndex];
-                      if (clickedCell.isWall) {
-                        clickedCell.isWall = false;
-                        return;
-                      }
-                      if (cell.cellNumber === startPoint?.cellNumber) {
-                        setStartPoint(null);
-                        clickedCell.isStartPoint = false;
-                        clickedCell.distanceFromStart = Infinity;
-                        return;
-                      }
-                      if (cell.cellNumber === endPoint?.cellNumber) {
-                        setEndPoint(null);
-                        clickedCell.isEndPoint = false;
-                        return;
-                      }
-
-                      if (startPoint && endPoint) {
-                        clickedCell.isWall = true;
-                        return;
-                      }
-                      if (!startPoint) {
-                        setStartPoint({
-                          ...clickedCell,
-                          isStartPoint: true,
-                          distanceFromStart: 0,
-                        });
-                        clickedCell.isStartPoint = true;
-                        clickedCell.distanceFromStart = 0;
-                      } else if (startPoint) {
-                        setEndPoint({
-                          ...clickedCell,
-                          isEndPoint: true,
-                        });
-                        clickedCell.isEndPoint = true;
-                      }
+                      onCellClick(cell, rowIndex, colIndex);
                     }}
+                    {...cell}
                   />
                 );
               })}

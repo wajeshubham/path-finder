@@ -8,4 +8,11 @@ export interface CellInterface {
   isEndPoint: boolean;
   distanceFromStart: number;
   previousCell: CellInterface | null;
+  isTarget?: boolean;
+}
+
+export enum SearchingAlgoEnum {
+  DIJKSTRA = "DIJKSTRA",
+  BFS = "BFS",
+  DFS = "DFS",
 }

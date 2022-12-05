@@ -1,14 +1,18 @@
-import { CellInterface } from "../interfaces";
-import { getCells } from "../utils/helpers";
+import { CellInterface } from "../../interfaces";
+import { getCells } from "../../utils/helpers";
 
 const getNeighbors = (currentCell: CellInterface, grid: CellInterface[][]) => {
   const neighbors: CellInterface[] = [];
   const { col, row } = currentCell;
 
   if (col > 0) neighbors.push(grid[row][col - 1]);
+
   if (col < grid[0].length - 1) neighbors.push(grid[row][col + 1]);
+
   if (row > 0) neighbors.push(grid[row - 1][col]);
+
   if (row < grid.length - 1) neighbors.push(grid[row + 1][col]);
+
   return neighbors.filter((n) => !n?.isVisited);
 };
 
@@ -42,7 +46,10 @@ export const dijkstra = (
     if (currentCell?.distanceFromStart === Infinity) return visitedCells; // the walls are closed
     currentCell.isVisited = true;
     visitedCells.push(currentCell);
-    if (currentCell.cellNumber === endCell.cellNumber) return visitedCells;
+    if (currentCell.cellNumber === endCell.cellNumber) {
+      currentCell.isTarget = true;
+      return visitedCells;
+    }
     traverseFurtherInGrid(currentCell, grid);
   }
 };
