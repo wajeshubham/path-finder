@@ -1,6 +1,6 @@
 import { CellInterface } from "../interfaces";
 
-let singleCell: CellInterface = {
+export const singleCell: CellInterface = {
   cellNumber: 0,
   col: 0,
   row: 0,
@@ -15,6 +15,7 @@ let singleCell: CellInterface = {
 
 export const getCellObjects = (
   resetOnlyPath: boolean = false,
+  resetOnlyWalls: boolean = false,
   grid?: CellInterface[][]
 ): CellInterface[][] => {
   let gridCells: CellInterface[][] = grid || [];
@@ -22,11 +23,14 @@ export const getCellObjects = (
   for (let rowInd = 0; rowInd < 30; rowInd++) {
     let currentRow: CellInterface[] = [];
     for (let colInd = 0; colInd < 52; colInd++) {
-      if (resetOnlyPath && grid) {
+      if ((resetOnlyPath || resetOnlyWalls) && grid) {
         grid[rowInd][colInd].isVisited = false;
         grid[rowInd][colInd].distanceFromStart = Infinity;
         grid[rowInd][colInd].isTarget = false;
         grid[rowInd][colInd].previousCell = null;
+        if (resetOnlyWalls) {
+          grid[rowInd][colInd].isWall = false;
+        }
       } else {
         currentRow.push({
           ...singleCell,
@@ -73,4 +77,26 @@ export function getShortestPathCells(endCell: CellInterface) {
 
 export const classNames = (...classes: string[]) => {
   return classes.filter(Boolean).join(" ");
+};
+
+export const generateOddRandomNumber = (numberArray: number[]) => {
+  let max = numberArray.length - 1;
+  let randomNum = Math.floor(Math.random() * (max / 2));
+  if (randomNum % 2 === 0) {
+    if (randomNum === max) randomNum -= 1;
+    else randomNum += 1;
+  }
+  return numberArray[randomNum];
+};
+
+export const generateRandomNumberWithin = (maxValue: number) => {
+  let randomNum = Math.floor(Math.random() * (maxValue / 2));
+  if (randomNum % 2 !== 0) {
+    if (randomNum === maxValue) {
+      randomNum -= 1;
+    } else {
+      randomNum += 1;
+    }
+  }
+  return randomNum;
 };

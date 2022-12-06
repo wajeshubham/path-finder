@@ -39,7 +39,7 @@ const GridBoard = () => {
   } | null>(null);
   const [showInfoOf, setShowInfoOf] = useState<SearchingAlgoEnum | null>(null);
 
-  const [speed, setSpeed] = useState<"slow" | "medium" | "fast">("fast");
+  const [speed, setSpeed] = useState<"slow" | "medium" | "fast">("medium");
 
   const getSpeedMultiplier = () => {
     switch (speed) {
@@ -61,8 +61,7 @@ const GridBoard = () => {
     }
   };
 
-  const clearBoard = () => {
-    gridBoardCells.current = getCellObjects();
+  const resetBoardData = () => {
     document.querySelectorAll(`.cell`).forEach((item) => {
       if (item.classList.contains("cell-visited")) {
         item.classList.remove("cell-visited");
@@ -71,28 +70,24 @@ const GridBoard = () => {
         item.classList.remove("cell-path");
       }
     });
-    setStartPoint(null);
-    setEndPoint(null);
     setFoundPath(null);
     setCellsScanned(0);
     setCellsTraveled(0);
     setTimeTaken(0);
   };
 
+  const clearBoard = () => {
+    gridBoardCells.current = getCellObjects(true, true, gridBoardCells.current);
+    resetBoardData();
+  };
+
   const clearPath = () => {
-    gridBoardCells.current = getCellObjects(true, gridBoardCells.current); // only reset path and ignore walls
-    document.querySelectorAll(`.cell`).forEach((item) => {
-      if (item.classList.contains("cell-visited")) {
-        item.classList.remove("cell-visited");
-      }
-      if (item.classList.contains("cell-path")) {
-        item.classList.remove("cell-path");
-      }
-    });
-    setFoundPath(null);
-    setCellsScanned(0);
-    setCellsTraveled(0);
-    setTimeTaken(0);
+    gridBoardCells.current = getCellObjects(
+      true,
+      false,
+      gridBoardCells.current
+    ); // only reset path and ignore walls
+    resetBoardData();
   };
 
   const onMouseEnter = (rowIndex: number, colIndex: number) => {
@@ -175,7 +170,10 @@ const GridBoard = () => {
   };
 
   const visualizeAlgo = (type: SearchingAlgoEnum) => {
-    if (!startPoint || !endPoint) return;
+    if (!startPoint || !endPoint) {
+      alert("Please mark starting and ending point");
+      return;
+    }
     let grid = gridBoardCells.current;
     let start = grid[startPoint.row][startPoint.col];
     let end = grid[endPoint.row][endPoint.col];
@@ -218,7 +216,7 @@ const GridBoard = () => {
       />
       <div className="bg-gray-900 pt-4">
         <div className="mx-auto flex max-w-7xl md:flex-row flex-col items-center justify-between">
-          <div className="flex flex-1 items-center w-full justify-start space-x-6 mx-4">
+          <div className="flex flex-1 flex-wrap md:flex-row flex-col gap-4 items-start md:items-center w-full justify-start space-x-4 mx-4">
             {/* FIXME: Make select component dynamic */}
             <Listbox
               value={selectedAlgo}
@@ -228,7 +226,7 @@ const GridBoard = () => {
             >
               {({ open }) => (
                 <>
-                  <div className="relative mt-1 flex min-w-[350px] justify-start items-center gap-4">
+                  <div className="relative mt-1 ml-4 md:ml-0 flex min-w-[350px] justify-start items-center gap-4">
                     <Listbox.Button className="relative w-full cursor-default border-b-[1px] border-b-gray-400 bg-gray-900 py-2 pl-3 pr-10 text-left shadow-sm focus:outline-none sm:text-sm">
                       <span
                         className={classNames(
@@ -363,36 +361,51 @@ const GridBoard = () => {
           </div>
         </div>
       </div>
-      <div className="w-full bg-gray-900 ">
-        <div className="flex flex-1 pt-4 max-w-7xl items-center justify-start space-x-6 mx-auto">
+      <div className="w-full bg-gray-900">
+        <div className="flex md:gap-0 flex-wrap gap-4 flex-1 pt-4 max-w-7xl md:flex-row flex-col items-start md:items-center justify-start space-x-4 mx-auto">
           <button
             className="w-fit ml-4 disabled:bg-gray-400 disabled:cursor-not-allowed inline-flex bg-gray-600 text-[15px] text-white px-4 py-2 rounded-md"
             onClick={() => {
-              generateRandomMaze(gridBoardCells.current);
               setRenderFlag(!renderFlag);
+              clearBoard();
+              generateRandomMaze(gridBoardCells.current);
             }}
           >
             Generate random maze
           </button>
-          <span className="h-6 w-px bg-gray-600" aria-hidden="true" />
+          <span
+            className="md:block hidden h-6 w-px bg-gray-600"
+            aria-hidden="true"
+          />
           <button
             className="w-fit disabled:bg-gray-400 disabled:cursor-not-allowed inline-flex bg-gray-600 text-[15px] text-white px-4 py-2 rounded-md"
             onClick={() => {
               setRenderFlag(!renderFlag);
-              generateRecursiveMaze(gridBoardCells.current);
+              clearBoard();
+              generateRecursiveMaze(
+                gridBoardCells.current,
+                startPoint,
+                endPoint
+              );
             }}
           >
-            Generate recursive maze (vertical)
+            Generate recursive maze
           </button>
-          <span className="h-6 w-px bg-gray-600" aria-hidden="true" />
-          <button
-            className="w-fit disabled:bg-gray-400 disabled:cursor-not-allowed inline-flex bg-gray-600 text-[15px] text-white px-4 py-2 rounded-md"
-            onClick={() => {
-              generateRandomMaze(gridBoardCells.current);
-              setRenderFlag(!renderFlag);
-            }}
-          >
-            Generate recursive maze (horizontal)
+          <span
+            className="md:block hidden h-6 w-px bg-gray-600"
+            aria-hidden="true"
+          />
+
+          <button className="w-fit disabled:bg-gray-400 disabled:cursor-not-allowed inline-flex bg-gray-600 text-[15px] text-white px-4 py-2 rounded-md">
+            {`</>`} Source code @wajeshubham
+          </button>
+          <span
+            className="md:block hidden h-6 w-px bg-gray-600"
+            aria-hidden="true"
+          />
+
+          <button className="w-fit disabled:bg-gray-400 disabled:cursor-not-allowed inline-flex bg-gray-600 text-[15px] text-white px-4 py-2 rounded-md">
+            {`</>`} Complete tutorial
           </button>
         </div>
       </div>
@@ -432,7 +445,7 @@ const GridBoard = () => {
           </button>
         </div>
       ) : null}
-      <div className="grid grid-cols-gridmap justify-center items-center mt-3">
+      <div className="grid grid-cols-gridmap overflow-auto w-full px-4 justify-start md:justify-center items-center my-3">
         {gridBoardCells.current.map((row, rowIndex) => {
           return (
             <React.Fragment key={rowIndex}>
