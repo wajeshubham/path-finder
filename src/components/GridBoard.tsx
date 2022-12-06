@@ -1,11 +1,20 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { Fragment, useEffect, useRef, useState } from "react";
 import { CellInterface, SearchingAlgoEnum } from "../interfaces";
-import { getCellObjects, getPath } from "../utils/helpers";
+import { classNames, getCellObjects, getPath } from "../utils/helpers";
 import Cell from "./Cell";
 import { dijkstra } from "../app/algorithms/dijkstra";
 import { BFS } from "../app/algorithms/BFS";
 import { DFS } from "../app/algorithms/DFS";
 import { generateRandomMaze } from "../app/maze/randomMaze";
+import { InfoSideOver } from "./InfoSideover";
+import StatsSection from "./StatsSection";
+import {
+  MagnifyingGlassIcon,
+  PaperAirplaneIcon,
+  ClockIcon,
+} from "@heroicons/react/24/outline";
+import { Listbox, Transition } from "@headlessui/react";
+import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 
 const GridBoard = () => {
   const gridBoardCells = useRef(getCellObjects());
@@ -16,9 +25,34 @@ const GridBoard = () => {
 
   const [cellsScanned, setCellsScanned] = useState(0);
   const [cellsTraveled, setCellsTraveled] = useState(0);
+  const [timeTaken, setTimeTaken] = useState(0);
 
   const [isMouseDown, setIsMouseDown] = useState(false);
   const [renderFlag, setRenderFlag] = useState(false);
+
+  const [selectedAlgo, setSelectedAlgo] = useState<{
+    name: string;
+    type: SearchingAlgoEnum;
+    onClick: () => void;
+  } | null>(null);
+  const [showInfoOf, setShowInfoOf] = useState<SearchingAlgoEnum | null>(null);
+
+  const clearBoard = () => {
+    gridBoardCells.current = getCellObjects();
+    document.querySelectorAll(`.cell`).forEach((item) => {
+      if (item.classList.contains("cell-visited")) {
+        item.classList.remove("cell-visited");
+      }
+      if (item.classList.contains("cell-path")) {
+        item.classList.remove("cell-path");
+      }
+    });
+    setStartPoint(null);
+    setEndPoint(null);
+    setFoundPath(null);
+    setCellsScanned(0);
+    setCellsTraveled(0);
+  };
 
   const onMouseEnter = (rowIndex: number, colIndex: number) => {
     setRenderFlag(!renderFlag);
@@ -94,7 +128,7 @@ const GridBoard = () => {
         const cell = path[i];
         setCellsTraveled(i + 1);
         let item = document.getElementById(`cell-${cell.row}-${cell.col}`);
-        item!.className += " !bg-red-600";
+        item!.className += " cell-path";
       }, 25 * i);
     }
   };
@@ -107,13 +141,19 @@ const GridBoard = () => {
     let visitedCells: CellInterface[] = [];
     switch (type) {
       case SearchingAlgoEnum.DIJKSTRA:
-        visitedCells = dijkstra(grid, start, end) || [];
+        let [dCells, DTime] = dijkstra(grid, start, end) || [];
+        visitedCells = dCells || [];
+        setTimeTaken(DTime || 0);
         break;
       case SearchingAlgoEnum.DFS:
-        visitedCells = DFS(grid, start, end) || [];
+        let [DFSCells, DFSTime] = DFS(grid, start, end) || [];
+        visitedCells = DFSCells || [];
+        setTimeTaken(DFSTime || 0);
         break;
       case SearchingAlgoEnum.BFS:
-        visitedCells = BFS(grid, start, end) || [];
+        let [BFSCells, BFSTime] = BFS(grid, start, end) || [];
+        visitedCells = BFSCells || [];
+        setTimeTaken(BFSTime || 0);
         break;
     }
     const path = getPath(grid, start, end);
@@ -129,34 +169,204 @@ const GridBoard = () => {
 
   return (
     <>
-      <div className="flex gap-6">
-        <button onClick={() => visualizeAlgo(SearchingAlgoEnum.DIJKSTRA)}>
-          Visualize dijkstra
-        </button>
-        <br />
-        <button onClick={() => visualizeAlgo(SearchingAlgoEnum.BFS)}>
-          Visualize BFS
-        </button>
-        <br />
-        <button onClick={() => visualizeAlgo(SearchingAlgoEnum.DFS)}>
-          Visualize DFS
-        </button>
-        <br />
+      <InfoSideOver
+        algorithm={showInfoOf}
+        onClose={() => {
+          setShowInfoOf(null);
+        }}
+      />
+      <div className="bg-gray-900 pt-4">
+        <div className="mx-auto flex max-w-7xl md:flex-row flex-col items-center justify-between">
+          <div className="flex flex-1 items-center w-full justify-start space-x-6 mx-4">
+            {/* FIXME: Make select component dynamic */}
+            <Listbox
+              value={selectedAlgo}
+              onChange={(value) => {
+                setSelectedAlgo(value);
+              }}
+            >
+              {({ open }) => (
+                <>
+                  <div className="relative mt-1 flex min-w-[350px] justify-start items-center gap-4">
+                    <Listbox.Button className="relative w-full cursor-default border-b-[1px] border-b-gray-400 bg-gray-900 py-2 pl-3 pr-10 text-left shadow-sm focus:outline-none sm:text-sm">
+                      <span
+                        className={classNames(
+                          selectedAlgo ? "text-white" : "text-gray-400",
+                          "block truncate"
+                        )}
+                      >
+                        {selectedAlgo?.name || "Select an algorithm"}
+                      </span>
+                      <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                        <ChevronUpDownIcon
+                          className="h-5 w-5 text-gray-400"
+                          aria-hidden="true"
+                        />
+                      </span>
+                    </Listbox.Button>
 
-        <button
-          onClick={() => {
-            generateRandomMaze(gridBoardCells.current);
-            setRenderFlag(!renderFlag);
-          }}
-        >
-          Generate random maze
-        </button>
-        <br />
-        <button>Pause</button>
-        <p>Total cells scanned: {cellsScanned}</p>
-        <p>Cells traveled: {cellsTraveled}</p>
+                    <Transition
+                      show={open}
+                      as={Fragment}
+                      leave="transition ease-in duration-100"
+                      leaveFrom="opacity-100"
+                      leaveTo="opacity-0"
+                    >
+                      <Listbox.Options className="absolute top-0 z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                        {[
+                          {
+                            name: "Dijkstra's algorithm",
+                            type: SearchingAlgoEnum.DIJKSTRA,
+                          },
+                          {
+                            name: "Breadth-first Search",
+                            type: SearchingAlgoEnum.BFS,
+                          },
+                          {
+                            name: "Depth-first Search",
+                            type: SearchingAlgoEnum.DFS,
+                          },
+                        ].map((algo) => (
+                          <Listbox.Option
+                            key={algo.type}
+                            className={({ active }) =>
+                              classNames(
+                                active
+                                  ? "text-white bg-indigo-600"
+                                  : "text-gray-900",
+                                "relative cursor-default select-none py-2 pl-3 pr-9"
+                              )
+                            }
+                            value={algo}
+                          >
+                            {({ active }) => (
+                              <>
+                                <span
+                                  className={classNames(
+                                    algo.type === selectedAlgo?.type
+                                      ? "font-semibold"
+                                      : "font-normal",
+                                    "block truncate"
+                                  )}
+                                >
+                                  {algo.name}
+                                </span>
+
+                                {algo.type === selectedAlgo?.type ? (
+                                  <span
+                                    className={classNames(
+                                      active ? "text-white" : "text-indigo-600",
+                                      "absolute inset-y-0 right-0 flex items-center pr-4"
+                                    )}
+                                  >
+                                    <CheckIcon
+                                      className="h-5 w-5"
+                                      aria-hidden="true"
+                                    />
+                                  </span>
+                                ) : null}
+                              </>
+                            )}
+                          </Listbox.Option>
+                        ))}
+                      </Listbox.Options>
+                    </Transition>
+                  </div>
+                </>
+              )}
+            </Listbox>
+            <button
+              disabled={!selectedAlgo}
+              onClick={() =>
+                selectedAlgo ? visualizeAlgo(selectedAlgo?.type) : null
+              }
+              className="w-fit disabled:bg-indigo-400 disabled:cursor-not-allowed inline-flex bg-indigo-600 text-[15px] text-white px-4 py-2 rounded-md"
+            >
+              {selectedAlgo
+                ? `Visualize ${selectedAlgo?.name}`
+                : "Select an algorithm"}
+            </button>
+            <button
+              onClick={() => {
+                clearBoard();
+                setRenderFlag(!renderFlag);
+              }}
+              className="w-fit disabled:bg-green-400 disabled:cursor-not-allowed inline-flex bg-green-500 text-[15px] text-white px-4 py-2 rounded-md"
+            >
+              Clear board
+            </button>
+          </div>
+        </div>
       </div>
-      <div className="grid grid-cols-gridmap justify-center items-center">
+      <div className="w-full bg-gray-900 ">
+        <div className="flex flex-1 pt-4 max-w-7xl items-center justify-start space-x-6 mx-auto">
+          <button
+            className="w-fit ml-4 disabled:bg-gray-400 disabled:cursor-not-allowed inline-flex bg-gray-600 text-[15px] text-white px-4 py-2 rounded-md"
+            onClick={() => {
+              generateRandomMaze(gridBoardCells.current);
+              setRenderFlag(!renderFlag);
+            }}
+          >
+            Generate random maze
+          </button>
+          <span className="h-6 w-px bg-gray-600" aria-hidden="true" />
+          <button
+            className="w-fit disabled:bg-gray-400 disabled:cursor-not-allowed inline-flex bg-gray-600 text-[15px] text-white px-4 py-2 rounded-md"
+            onClick={() => {
+              generateRandomMaze(gridBoardCells.current);
+              setRenderFlag(!renderFlag);
+            }}
+          >
+            Generate recursive maze (vertical)
+          </button>
+          <span className="h-6 w-px bg-gray-600" aria-hidden="true" />
+          <button
+            className="w-fit disabled:bg-gray-400 disabled:cursor-not-allowed inline-flex bg-gray-600 text-[15px] text-white px-4 py-2 rounded-md"
+            onClick={() => {
+              generateRandomMaze(gridBoardCells.current);
+              setRenderFlag(!renderFlag);
+            }}
+          >
+            Generate recursive maze (horizontal)
+          </button>
+        </div>
+      </div>
+      <div className="w-full bg-gray-900 ">
+        <div className="flex gap-6 justify-center max-w-7xl mx-auto items-center">
+          <StatsSection
+            stats={[
+              {
+                name: "Cells scanned",
+                icon: MagnifyingGlassIcon,
+                data: cellsScanned.toString(),
+              },
+              {
+                name: "Cells traveled",
+                icon: PaperAirplaneIcon,
+                data: cellsTraveled.toString(),
+              },
+              {
+                name: "Time taken",
+                icon: ClockIcon,
+                data: `${timeTaken?.toFixed(2)}ms`,
+              },
+            ]}
+          />
+        </div>
+      </div>
+      {selectedAlgo ? (
+        <div className="flex my-3 w-full mx-auto justify-end max-w-7xl">
+          <button
+            className="mx-4 text-indigo-700 font-medium underline"
+            onClick={() => {
+              setShowInfoOf(selectedAlgo.type);
+            }}
+          >
+            Know more about {selectedAlgo?.name}
+          </button>
+        </div>
+      ) : null}
+      <div className="grid grid-cols-gridmap justify-center items-center mt-3">
         {gridBoardCells.current.map((row, rowIndex) => {
           return (
             <React.Fragment key={rowIndex}>

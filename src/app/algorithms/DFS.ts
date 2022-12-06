@@ -4,7 +4,9 @@ export const DFS = (
   grid: CellInterface[][],
   startCell: CellInterface,
   endCell: CellInterface
-) => {
+): [CellInterface[], number] => {
+  let startTime = window?.performance.now();
+  let endTime;
   let unvisitedCellsStack: CellInterface[] = [startCell];
   let visitedCells: CellInterface[] = [];
 
@@ -13,7 +15,10 @@ export const DFS = (
   while (unvisitedCellsStack.length > 0) {
     let currentCell = unvisitedCellsStack.shift(); // for DFS we want go in the same direction till we hit the border so we access item which is added last in the array
 
-    if (!currentCell) return visitedCells;
+    if (!currentCell) {
+      endTime = window.performance.now();
+      return [visitedCells, endTime - startTime];
+    }
 
     const { col, row, cellNumber, isVisited } = currentCell;
 
@@ -23,7 +28,8 @@ export const DFS = (
 
     if (cellNumber === endCell.cellNumber) {
       currentCell.isTarget = true;
-      return visitedCells;
+      endTime = window.performance.now();
+      return [visitedCells, endTime - startTime];
     }
 
     if (
@@ -66,5 +72,6 @@ export const DFS = (
       currentCell.isVisited = true;
     }
   }
-  return visitedCells;
+  endTime = window.performance.now();
+  return [visitedCells, endTime - startTime];
 };

@@ -18,7 +18,7 @@ export const getCellObjects = (): CellInterface[][] => {
   let cellNumber = 0;
   for (let rowInd = 0; rowInd < 30; rowInd++) {
     let currentRow: CellInterface[] = [];
-    for (let colInd = 0; colInd < 50; colInd++) {
+    for (let colInd = 0; colInd < 52; colInd++) {
       currentRow.push({ ...singleCell, row: rowInd, col: colInd, cellNumber });
       cellNumber++;
     }
@@ -93,3 +93,7 @@ export function getShortestPathCells(
 
   return pathCells;
 }
+
+export const classNames = (...classes: string[]) => {
+  return classes.filter(Boolean).join(" ");
+};

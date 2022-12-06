@@ -4,7 +4,10 @@ export function BFS(
   grid: CellInterface[][],
   startCell: CellInterface,
   endCell: CellInterface
-) {
+): [CellInterface[], number] {
+  let startTime = window?.performance.now();
+  let endTime;
+
   let unvisitedCellsQueue: CellInterface[] = [startCell];
   let visitedCells: CellInterface[] = [];
 
@@ -13,7 +16,10 @@ export function BFS(
   while (unvisitedCellsQueue.length > 0) {
     let currentCell = unvisitedCellsQueue.pop(); // for BFS we want neighbors to get traversed first so we pop() the item which we put first
 
-    if (!currentCell) return visitedCells;
+    if (!currentCell) {
+      endTime = window.performance.now();
+      return [visitedCells, endTime - startTime];
+    }
 
     const { col, row, cellNumber, isVisited } = currentCell;
 
@@ -23,7 +29,8 @@ export function BFS(
 
     if (cellNumber === endCell.cellNumber) {
       currentCell.isTarget = true;
-      return visitedCells;
+      endTime = window.performance.now();
+      return [visitedCells, endTime - startTime];
     }
 
     if (
@@ -66,5 +73,6 @@ export function BFS(
       currentCell.isVisited = true;
     }
   }
-  return visitedCells;
+  endTime = window.performance.now();
+  return [visitedCells, endTime - startTime];
 }

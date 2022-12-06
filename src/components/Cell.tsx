@@ -1,5 +1,6 @@
 import React, { HTMLAttributes } from "react";
 import { CellInterface } from "../interfaces";
+import { MapPinIcon, TrophyIcon } from "@heroicons/react/24/outline";
 
 const Cell: React.FC<CellInterface & HTMLAttributes<HTMLDivElement>> = ({
   isStartPoint,
@@ -16,12 +17,18 @@ const Cell: React.FC<CellInterface & HTMLAttributes<HTMLDivElement>> = ({
   return (
     <div
       {...props}
-      className={`w-6 h-6 inline-block aspect-square border-[0.1px] border-amber-300 ${
-        isStartPoint ? "!bg-red-500" : ""
-      } ${isEndPoint ? "!bg-green-500" : ""} ${
-        isWall ? "bg-gray-900 wall-animate" : ""
+      className={`cell lg:w-6 w-4 lg:h-6 h-4 inline-flex justify-center items-center aspect-square border-[0.1px] border-indigo-300 ${
+        isStartPoint ? "!bg-green-300" : ""
+      } ${isEndPoint ? "!bg-gray-200" : ""} ${
+        isWall ? "!bg-gray-900 wall-animate" : ""
       }`}
-    ></div>
+    >
+      {isStartPoint ? (
+        <MapPinIcon className="h-4 w-4 font-bold" />
+      ) : isEndPoint ? (
+        <TrophyIcon className="h-4 w-4 font-bold" />
+      ) : null}
+    </div>
   );
 };
 
