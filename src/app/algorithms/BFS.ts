@@ -5,7 +5,7 @@ export function BFS(
   startCell: CellInterface,
   endCell: CellInterface
 ): [CellInterface[], number] {
-  let startTime = window?.performance.now();
+  let startTime = Date.now();
   let endTime;
 
   let unvisitedCellsQueue: CellInterface[] = [startCell];
@@ -17,7 +17,7 @@ export function BFS(
     let currentCell = unvisitedCellsQueue.pop(); // for BFS we want neighbors to get traversed first so we pop() the item which we put first
 
     if (!currentCell) {
-      endTime = window.performance.now();
+      endTime = Date.now();
       return [visitedCells, endTime - startTime];
     }
 
@@ -29,7 +29,7 @@ export function BFS(
 
     if (cellNumber === endCell.cellNumber) {
       currentCell.isTarget = true;
-      endTime = window.performance.now();
+      endTime = Date.now();
       return [visitedCells, endTime - startTime];
     }
 
@@ -73,6 +73,6 @@ export function BFS(
       currentCell.isVisited = true;
     }
   }
-  endTime = window.performance.now();
+  endTime = Date.now();
   return [visitedCells, endTime - startTime];
 }

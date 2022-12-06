@@ -12,6 +12,7 @@ import {
   MagnifyingGlassIcon,
   PaperAirplaneIcon,
   ClockIcon,
+  ArrowRightIcon,
 } from "@heroicons/react/24/outline";
 import { Listbox, Transition } from "@headlessui/react";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
@@ -421,12 +422,13 @@ const GridBoard = () => {
       {selectedAlgo ? (
         <div className="flex my-3 w-full mx-auto justify-end max-w-7xl">
           <button
-            className="mx-4 text-indigo-700 font-medium underline"
+            className="mx-4 text-indigo-700 inline-flex items-center font-medium underline"
             onClick={() => {
               setShowInfoOf(selectedAlgo.type);
             }}
           >
-            Know more about {selectedAlgo?.name}
+            Know more about {selectedAlgo?.name}{" "}
+            <ArrowRightIcon className="h-4 w-4 ml-1 font-bold" />
           </button>
         </div>
       ) : null}

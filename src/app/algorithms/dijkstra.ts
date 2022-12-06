@@ -32,7 +32,7 @@ export const dijkstra = (
   startCell: CellInterface,
   endCell: CellInterface
 ) => {
-  let startTime = window?.performance.now();
+  let startTime = Date.now();
   let endTime;
   let unvisitedCells = getCells(grid); // clone
   startCell.distanceFromStart = 0;
@@ -44,19 +44,19 @@ export const dijkstra = (
     let currentCell = unvisitedCells.shift(); // remove 1st cell
 
     if (!currentCell) {
-      endTime = window?.performance.now();
+      endTime = Date.now();
       return [visitedCells, endTime - startTime] as const;
     }
     if (currentCell?.isWall) continue; // ignore walls
     if (currentCell?.distanceFromStart === Infinity) {
-      endTime = window?.performance.now();
+      endTime = Date.now();
       return [visitedCells, endTime - startTime] as const;
     } // the walls are closed
     currentCell.isVisited = true;
     visitedCells.push(currentCell);
     if (currentCell.cellNumber === endCell.cellNumber) {
       currentCell.isTarget = true;
-      endTime = window?.performance.now();
+      endTime = Date.now();
       return [visitedCells, endTime - startTime] as const;
     }
     traverseFurtherInGrid(currentCell, grid);
