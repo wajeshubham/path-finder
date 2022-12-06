@@ -13,16 +13,33 @@ let singleCell: CellInterface = {
   isTarget: false,
 };
 
-export const getCellObjects = (): CellInterface[][] => {
-  let gridCells: CellInterface[][] = [];
+export const getCellObjects = (
+  resetOnlyPath: boolean = false,
+  grid?: CellInterface[][]
+): CellInterface[][] => {
+  let gridCells: CellInterface[][] = grid || [];
   let cellNumber = 0;
   for (let rowInd = 0; rowInd < 30; rowInd++) {
     let currentRow: CellInterface[] = [];
     for (let colInd = 0; colInd < 52; colInd++) {
-      currentRow.push({ ...singleCell, row: rowInd, col: colInd, cellNumber });
+      if (resetOnlyPath && grid) {
+        grid[rowInd][colInd].isVisited = false;
+        grid[rowInd][colInd].distanceFromStart = Infinity;
+        grid[rowInd][colInd].isTarget = false;
+        grid[rowInd][colInd].previousCell = null;
+      } else {
+        currentRow.push({
+          ...singleCell,
+          row: rowInd,
+          col: colInd,
+          cellNumber,
+        });
+      }
       cellNumber++;
     }
-    gridCells.push(currentRow);
+    if (!resetOnlyPath) {
+      gridCells.push(currentRow);
+    }
   }
 
   return gridCells;

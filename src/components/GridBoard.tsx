@@ -38,6 +38,28 @@ const GridBoard = () => {
   } | null>(null);
   const [showInfoOf, setShowInfoOf] = useState<SearchingAlgoEnum | null>(null);
 
+  const [speed, setSpeed] = useState<"slow" | "medium" | "fast">("fast");
+
+  const getSpeedMultiplier = () => {
+    switch (speed) {
+      case "fast":
+        return {
+          algorithm: 3,
+          path: 15,
+        };
+      case "medium":
+        return {
+          algorithm: 10,
+          path: 20,
+        };
+      case "slow":
+        return {
+          algorithm: 100,
+          path: 125,
+        };
+    }
+  };
+
   const clearBoard = () => {
     gridBoardCells.current = getCellObjects();
     document.querySelectorAll(`.cell`).forEach((item) => {
@@ -53,6 +75,23 @@ const GridBoard = () => {
     setFoundPath(null);
     setCellsScanned(0);
     setCellsTraveled(0);
+    setTimeTaken(0);
+  };
+
+  const clearPath = () => {
+    gridBoardCells.current = getCellObjects(true, gridBoardCells.current); // only reset path and ignore walls
+    document.querySelectorAll(`.cell`).forEach((item) => {
+      if (item.classList.contains("cell-visited")) {
+        item.classList.remove("cell-visited");
+      }
+      if (item.classList.contains("cell-path")) {
+        item.classList.remove("cell-path");
+      }
+    });
+    setFoundPath(null);
+    setCellsScanned(0);
+    setCellsTraveled(0);
+    setTimeTaken(0);
   };
 
   const onMouseEnter = (rowIndex: number, colIndex: number) => {
@@ -119,7 +158,7 @@ const GridBoard = () => {
         if (cell.isTarget) {
           setFoundPath(path);
         }
-      }, 10 * i);
+      }, (getSpeedMultiplier().algorithm || 10) * i);
     }
   };
 
@@ -130,7 +169,7 @@ const GridBoard = () => {
         setCellsTraveled(i + 1);
         let item = document.getElementById(`cell-${cell.row}-${cell.col}`);
         item!.className += " cell-path";
-      }, 25 * i);
+      }, (getSpeedMultiplier().path || 25) * i);
     }
   };
 
@@ -295,6 +334,30 @@ const GridBoard = () => {
               className="w-fit disabled:bg-green-400 disabled:cursor-not-allowed inline-flex bg-green-500 text-[15px] text-white px-4 py-2 rounded-md"
             >
               Clear board
+            </button>
+
+            <button
+              onClick={() => {
+                clearPath();
+              }}
+              className="w-fit disabled:bg-green-400 disabled:cursor-not-allowed inline-flex bg-green-500 text-[15px] text-white px-4 py-2 rounded-md"
+            >
+              Clear path
+            </button>
+
+            <button
+              onClick={() => {
+                setSpeed(
+                  speed === "fast"
+                    ? "medium"
+                    : speed === "medium"
+                    ? "slow"
+                    : "fast"
+                );
+              }}
+              className="w-fit disabled:bg-red-400 disabled:cursor-not-allowed inline-flex bg-red-500 text-[15px] text-white px-4 py-2 rounded-md"
+            >
+              Speed: {speed}
             </button>
           </div>
         </div>
