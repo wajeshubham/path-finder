@@ -38,55 +38,15 @@ export const getCells = (grid: CellInterface[][]) => {
   return cellsArray;
 };
 
-export const getPath = (
-  grid: CellInterface[][],
-  startPoint: CellInterface,
-  endPoint: CellInterface
-) => {
-  let path = getShortestPathCells(grid, startPoint, endPoint) || [];
+export const getPath = (endPoint: CellInterface) => {
+  let path = getShortestPathCells(endPoint) || [];
   return path;
 };
 
-export function getShortestPathCells(
-  grid: CellInterface[][],
-  startCell: CellInterface,
-  endCell: CellInterface
-) {
+export function getShortestPathCells(endCell: CellInterface) {
   const pathCells = [];
   let currentCell: CellInterface | null = endCell;
   while (currentCell) {
-    if (
-      currentCell.row + 1 < grid.length &&
-      grid[currentCell.row + 1][currentCell.col].cellNumber ===
-        startCell.cellNumber
-    ) {
-      pathCells.push(currentCell);
-      return pathCells;
-    }
-    if (
-      currentCell.row - 1 >= 0 &&
-      grid[currentCell.row - 1][currentCell.col].cellNumber ===
-        startCell.cellNumber
-    ) {
-      pathCells.push(currentCell);
-      return pathCells;
-    }
-    if (
-      currentCell.col + 1 < grid[0].length &&
-      grid[currentCell.row][currentCell.col + 1].cellNumber ===
-        startCell.cellNumber
-    ) {
-      pathCells.push(currentCell);
-      return pathCells;
-    }
-    if (
-      currentCell.col - 1 >= 0 &&
-      grid[currentCell.row][currentCell.col - 1].cellNumber ===
-        startCell.cellNumber
-    ) {
-      pathCells.push(currentCell);
-      return pathCells;
-    }
     pathCells.push(currentCell);
     currentCell = currentCell.previousCell;
   }

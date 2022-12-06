@@ -15,6 +15,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { Listbox, Transition } from "@headlessui/react";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
+import { generateRecursiveMaze } from "../app/maze/recursiveMaze";
 
 const GridBoard = () => {
   const gridBoardCells = useRef(getCellObjects());
@@ -156,7 +157,7 @@ const GridBoard = () => {
         setTimeTaken(BFSTime || 0);
         break;
     }
-    const path = getPath(grid, start, end);
+    const path = getPath(end);
     setCellsScanned(visitedCells.length);
     animateAlgo(visitedCells, path);
   };
@@ -313,8 +314,8 @@ const GridBoard = () => {
           <button
             className="w-fit disabled:bg-gray-400 disabled:cursor-not-allowed inline-flex bg-gray-600 text-[15px] text-white px-4 py-2 rounded-md"
             onClick={() => {
-              generateRandomMaze(gridBoardCells.current);
               setRenderFlag(!renderFlag);
+              generateRecursiveMaze(gridBoardCells.current);
             }}
           >
             Generate recursive maze (vertical)
