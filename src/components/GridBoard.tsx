@@ -13,10 +13,25 @@ import {
   PaperAirplaneIcon,
   ClockIcon,
   ArrowRightIcon,
+  RectangleGroupIcon,
+  CalendarIcon,
+  MapPinIcon,
+  ForwardIcon,
+  CubeTransparentIcon,
+  CommandLineIcon,
 } from "@heroicons/react/24/outline";
 import { Listbox, Transition } from "@headlessui/react";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 import { generateRecursiveMaze } from "../app/maze/recursiveMaze";
+
+const GithubLogo = () => {
+  return (
+    <img
+      src="/assets/github.png"
+      className="h-[18px] w-[18px] mr-2 object-contain"
+    />
+  );
+};
 
 const GridBoard = () => {
   const gridBoardCells = useRef(getCellObjects());
@@ -319,8 +334,9 @@ const GridBoard = () => {
               onClick={() =>
                 selectedAlgo ? visualizeAlgo(selectedAlgo?.type) : null
               }
-              className="w-fit disabled:bg-indigo-400 disabled:cursor-not-allowed inline-flex bg-indigo-600 text-[15px] text-white px-4 py-2 rounded-md"
+              className="items-center w-fit disabled:bg-indigo-400 disabled:cursor-not-allowed inline-flex bg-indigo-600 text-[15px] text-white px-4 py-2 rounded-md"
             >
+              <RectangleGroupIcon className="h-5 w-5 mr-2" />{" "}
               {selectedAlgo
                 ? `Visualize ${selectedAlgo?.name}`
                 : "Select an algorithm"}
@@ -330,18 +346,18 @@ const GridBoard = () => {
                 clearBoard();
                 setRenderFlag(!renderFlag);
               }}
-              className="w-fit disabled:bg-green-400 disabled:cursor-not-allowed inline-flex bg-green-500 text-[15px] text-white px-4 py-2 rounded-md"
+              className="items-center w-fit disabled:bg-green-500 disabled:cursor-not-allowed inline-flex bg-green-600 text-[15px] text-white px-4 py-2 rounded-md"
             >
-              Clear board
+              <CalendarIcon className="h-5 w-5 mr-2" /> Clear board
             </button>
 
             <button
               onClick={() => {
                 clearPath();
               }}
-              className="w-fit disabled:bg-green-400 disabled:cursor-not-allowed inline-flex bg-green-500 text-[15px] text-white px-4 py-2 rounded-md"
+              className="items-center w-fit disabled:bg-green-500 disabled:cursor-not-allowed inline-flex bg-green-600 text-[15px] text-white px-4 py-2 rounded-md"
             >
-              Clear path
+              <MapPinIcon className="h-5 w-5 mr-2" /> Clear path
             </button>
 
             <button
@@ -354,9 +370,9 @@ const GridBoard = () => {
                     : "fast"
                 );
               }}
-              className="w-fit disabled:bg-red-400 disabled:cursor-not-allowed inline-flex bg-red-500 text-[15px] text-white px-4 py-2 rounded-md"
+              className="items-center w-fit disabled:bg-red-400 disabled:cursor-not-allowed inline-flex bg-red-500 text-[15px] text-white px-4 py-2 rounded-md"
             >
-              Speed: {speed}
+              <ForwardIcon className="h-5 w-5 mr-2" /> Speed: {speed}
             </button>
           </div>
         </div>
@@ -364,21 +380,22 @@ const GridBoard = () => {
       <div className="w-full bg-gray-900">
         <div className="flex md:gap-0 flex-wrap gap-4 flex-1 pt-4 max-w-7xl md:flex-row flex-col items-start md:items-center justify-start space-x-4 mx-auto">
           <button
-            className="w-fit ml-4 disabled:bg-gray-400 disabled:cursor-not-allowed inline-flex bg-gray-600 text-[15px] text-white px-4 py-2 rounded-md"
+            className="items-center w-fit ml-4 disabled:bg-gray-400 disabled:cursor-not-allowed inline-flex bg-gray-600 text-[15px] text-white px-4 py-2 rounded-md"
             onClick={() => {
               setRenderFlag(!renderFlag);
               clearBoard();
               generateRandomMaze(gridBoardCells.current);
             }}
           >
-            Generate random maze
+            <CubeTransparentIcon className="h-5 w-5 mr-2" /> Generate random
+            maze
           </button>
           <span
             className="md:block hidden h-6 w-px bg-gray-600"
             aria-hidden="true"
           />
           <button
-            className="w-fit disabled:bg-gray-400 disabled:cursor-not-allowed inline-flex bg-gray-600 text-[15px] text-white px-4 py-2 rounded-md"
+            className="items-center w-fit disabled:bg-gray-400 disabled:cursor-not-allowed inline-flex bg-gray-600 text-[15px] text-white px-4 py-2 rounded-md"
             onClick={() => {
               setRenderFlag(!renderFlag);
               clearBoard();
@@ -389,24 +406,29 @@ const GridBoard = () => {
               );
             }}
           >
-            Generate recursive maze
+            <CubeTransparentIcon className="h-5 w-5 mr-2" /> Generate recursive
+            maze
           </button>
           <span
             className="md:block hidden h-6 w-px bg-gray-600"
             aria-hidden="true"
           />
 
-          <button className="w-fit disabled:bg-gray-400 disabled:cursor-not-allowed inline-flex bg-gray-600 text-[15px] text-white px-4 py-2 rounded-md">
-            {`</>`} Source code @wajeshubham
-          </button>
+          <a
+            href={"https://github.com/wajeshubham/path-finder"}
+            target="_blank"
+            className="items-center w-fit disabled:bg-gray-400 disabled:cursor-not-allowed inline-flex bg-gray-600 text-[15px] text-white px-4 py-2 rounded-md"
+          >
+            <GithubLogo /> Source code
+          </a>
           <span
             className="md:block hidden h-6 w-px bg-gray-600"
             aria-hidden="true"
           />
 
-          <button className="w-fit disabled:bg-gray-400 disabled:cursor-not-allowed inline-flex bg-gray-600 text-[15px] text-white px-4 py-2 rounded-md">
-            {`</>`} Complete tutorial
-          </button>
+          {/* <button className="items-center w-fit disabled:bg-gray-400 disabled:cursor-not-allowed inline-flex bg-gray-600 text-[15px] text-white px-4 py-2 rounded-md">
+          Complete tutorial
+          </button> */}
         </div>
       </div>
       <div className="w-full bg-gray-900 ">
@@ -441,7 +463,7 @@ const GridBoard = () => {
             }}
           >
             Know more about {selectedAlgo?.name}{" "}
-            <ArrowRightIcon className="h-4 w-4 ml-1 font-bold" />
+            <ArrowRightIcon className="h-5 w-5 ml-1 font-bold" />
           </button>
         </div>
       ) : null}
