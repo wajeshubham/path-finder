@@ -27,7 +27,7 @@ import {
   BFS,
   generateRandomMaze,
   generateRecursiveMaze,
-} from "../app/";
+} from "../app/index";
 
 const GridBoard = () => {
   const gridBoardCells = useRef(getCellObjects());
