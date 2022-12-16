@@ -16,3 +16,9 @@ export enum SearchingAlgoEnum {
   BFS = "BFS",
   DFS = "DFS",
 }
+
+export interface AlgorithmOption {
+  name: string;
+  type: SearchingAlgoEnum;
+  onClick: () => void;
+}

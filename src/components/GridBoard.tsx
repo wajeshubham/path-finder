@@ -1,11 +1,11 @@
-import React, { Fragment, useEffect, useRef, useState } from "react";
-import { CellInterface, SearchingAlgoEnum } from "../interfaces";
-import { classNames, getCellObjects, getPath } from "../utils/helpers";
+import React, { useEffect, useRef, useState } from "react";
+import {
+  AlgorithmOption,
+  CellInterface,
+  SearchingAlgoEnum,
+} from "../interfaces";
+import { getCellObjects, getPath } from "../utils/helpers";
 import Cell from "./Cell";
-import { dijkstra } from "../app/algorithms/dijkstra";
-import { BFS } from "../app/algorithms/BFS";
-import { DFS } from "../app/algorithms/DFS";
-import { generateRandomMaze } from "../app/maze/randomMaze";
 import { InfoSideOver } from "./InfoSideover";
 import StatsSection from "./StatsSection";
 import {
@@ -18,20 +18,16 @@ import {
   MapPinIcon,
   ForwardIcon,
   CubeTransparentIcon,
-  CommandLineIcon,
 } from "@heroicons/react/24/outline";
-import { Listbox, Transition } from "@headlessui/react";
-import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
-import { generateRecursiveMaze } from "../app/maze/recursiveMaze";
-
-const GithubLogo = () => {
-  return (
-    <img
-      src="/assets/github.png"
-      className="h-[18px] w-[18px] mr-2 object-contain"
-    />
-  );
-};
+import { GithubLogo } from "./GithubLogo";
+import AlgoSelect from "./AlgoSelect";
+import {
+  dijkstra,
+  DFS,
+  BFS,
+  generateRandomMaze,
+  generateRecursiveMaze,
+} from "../app/";
 
 const GridBoard = () => {
   const gridBoardCells = useRef(getCellObjects());
@@ -47,11 +43,10 @@ const GridBoard = () => {
   const [isMouseDown, setIsMouseDown] = useState(false);
   const [renderFlag, setRenderFlag] = useState(false);
 
-  const [selectedAlgo, setSelectedAlgo] = useState<{
-    name: string;
-    type: SearchingAlgoEnum;
-    onClick: () => void;
-  } | null>(null);
+  const [selectedAlgo, setSelectedAlgo] = useState<AlgorithmOption | null>(
+    null
+  );
+
   const [showInfoOf, setShowInfoOf] = useState<SearchingAlgoEnum | null>(null);
 
   const [speed, setSpeed] = useState<"slow" | "medium" | "fast">("medium");
@@ -232,103 +227,10 @@ const GridBoard = () => {
       <div className="bg-gray-900 pt-4">
         <div className="mx-auto flex max-w-7xl md:flex-row flex-col items-center justify-between">
           <div className="flex flex-1 flex-wrap md:flex-row flex-col gap-4 items-start md:items-center w-full justify-start space-x-4 mx-4">
-            {/* FIXME: Make select component dynamic */}
-            <Listbox
-              value={selectedAlgo}
-              onChange={(value) => {
-                setSelectedAlgo(value);
-              }}
-            >
-              {({ open }) => (
-                <>
-                  <div className="relative mt-1 ml-4 md:ml-0 flex min-w-[350px] justify-start items-center gap-4">
-                    <Listbox.Button className="relative w-full cursor-default border-b-[1px] border-b-gray-400 bg-gray-900 py-2 pl-3 pr-10 text-left shadow-sm focus:outline-none sm:text-sm">
-                      <span
-                        className={classNames(
-                          selectedAlgo ? "text-white" : "text-gray-400",
-                          "block truncate"
-                        )}
-                      >
-                        {selectedAlgo?.name || "Select an algorithm"}
-                      </span>
-                      <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                        <ChevronUpDownIcon
-                          className="h-5 w-5 text-gray-400"
-                          aria-hidden="true"
-                        />
-                      </span>
-                    </Listbox.Button>
-
-                    <Transition
-                      show={open}
-                      as={Fragment}
-                      leave="transition ease-in duration-100"
-                      leaveFrom="opacity-100"
-                      leaveTo="opacity-0"
-                    >
-                      <Listbox.Options className="absolute top-0 z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                        {[
-                          {
-                            name: "Dijkstra's algorithm",
-                            type: SearchingAlgoEnum.DIJKSTRA,
-                          },
-                          {
-                            name: "Breadth-first Search",
-                            type: SearchingAlgoEnum.BFS,
-                          },
-                          {
-                            name: "Depth-first Search",
-                            type: SearchingAlgoEnum.DFS,
-                          },
-                        ].map((algo) => (
-                          <Listbox.Option
-                            key={algo.type}
-                            className={({ active }) =>
-                              classNames(
-                                active
-                                  ? "text-white bg-indigo-600"
-                                  : "text-gray-900",
-                                "relative cursor-default select-none py-2 pl-3 pr-9"
-                              )
-                            }
-                            value={algo}
-                          >
-                            {({ active }) => (
-                              <>
-                                <span
-                                  className={classNames(
-                                    algo.type === selectedAlgo?.type
-                                      ? "font-semibold"
-                                      : "font-normal",
-                                    "block truncate"
-                                  )}
-                                >
-                                  {algo.name}
-                                </span>
-
-                                {algo.type === selectedAlgo?.type ? (
-                                  <span
-                                    className={classNames(
-                                      active ? "text-white" : "text-indigo-600",
-                                      "absolute inset-y-0 right-0 flex items-center pr-4"
-                                    )}
-                                  >
-                                    <CheckIcon
-                                      className="h-5 w-5"
-                                      aria-hidden="true"
-                                    />
-                                  </span>
-                                ) : null}
-                              </>
-                            )}
-                          </Listbox.Option>
-                        ))}
-                      </Listbox.Options>
-                    </Transition>
-                  </div>
-                </>
-              )}
-            </Listbox>
+            <AlgoSelect
+              selectedAlgo={selectedAlgo}
+              onSelect={setSelectedAlgo}
+            />
             <button
               disabled={!selectedAlgo}
               onClick={() =>
@@ -383,7 +285,7 @@ const GridBoard = () => {
             className="items-center w-fit ml-4 disabled:bg-gray-400 disabled:cursor-not-allowed inline-flex bg-gray-600 text-[15px] text-white px-4 py-2 rounded-md"
             onClick={() => {
               setRenderFlag(!renderFlag);
-              clearBoard();
+              clearBoard(); // just to be sure that board and path is cleared
               generateRandomMaze(gridBoardCells.current);
             }}
           >
@@ -398,7 +300,7 @@ const GridBoard = () => {
             className="items-center w-fit disabled:bg-gray-400 disabled:cursor-not-allowed inline-flex bg-gray-600 text-[15px] text-white px-4 py-2 rounded-md"
             onClick={() => {
               setRenderFlag(!renderFlag);
-              clearBoard();
+              clearBoard(); // just to be sure that board and path is cleared
               generateRecursiveMaze(
                 gridBoardCells.current,
                 startPoint,
@@ -425,10 +327,6 @@ const GridBoard = () => {
             className="md:block hidden h-6 w-px bg-gray-600"
             aria-hidden="true"
           />
-
-          {/* <button className="items-center w-fit disabled:bg-gray-400 disabled:cursor-not-allowed inline-flex bg-gray-600 text-[15px] text-white px-4 py-2 rounded-md">
-          Complete tutorial
-          </button> */}
         </div>
       </div>
       <div className="w-full bg-gray-900 ">

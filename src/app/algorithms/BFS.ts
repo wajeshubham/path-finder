@@ -1,5 +1,6 @@
 import { CellInterface } from "../../interfaces";
 
+// Visit your neighbors
 export function BFS(
   grid: CellInterface[][],
   startCell: CellInterface,

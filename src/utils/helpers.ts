@@ -24,6 +24,7 @@ export const getCellObjects = (
     let currentRow: CellInterface[] = [];
     for (let colInd = 0; colInd < 52; colInd++) {
       if ((resetOnlyPath || resetOnlyWalls) && grid) {
+        // don't recreate the grid instead just reset the path and walls flag conditionally
         grid[rowInd][colInd].isVisited = false;
         grid[rowInd][colInd].distanceFromStart = Infinity;
         grid[rowInd][colInd].isTarget = false;

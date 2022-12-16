@@ -1,5 +1,7 @@
 import { CellInterface } from "../../interfaces";
 
+// Go until you hit a wall
+// Change direction as soon as you hit a wall
 export const DFS = (
   grid: CellInterface[][],
   startCell: CellInterface,
