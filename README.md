@@ -1,8 +1,8 @@
 # 🗺 Path finding visualizer
 
-<img src="https://path-finder.wajeshubham.in/assets/image.jpg"   style="width:450px;" align="center" />
-<br/>
-<br/>
+###### Watch on youtube
+
+[![Watch the video](https://wajeshubham-portfolio.s3.ap-south-1.amazonaws.com/Path+finding+visualizer.png)](https://youtu.be/IL6I25CXQuw)
 
 An interactive visualization of Dijkstra's, BFS, and DFS path finding algorithms
 
